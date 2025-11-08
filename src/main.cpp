@@ -26,6 +26,7 @@ main(int argc, char **argv)
     printf("Using interface %s\n", interface);
 
     LinkedList dataSetValues = LinkedList_create();
+    
 
     LinkedList_add(dataSetValues, MmsValue_newIntegerFromInt32(1234));
     LinkedList_add(dataSetValues, MmsValue_newBinaryTime(false));

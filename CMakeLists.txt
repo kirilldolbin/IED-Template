@@ -10,7 +10,7 @@ include(third_party/CMakeLists.txt)
 add_executable(ied_exe src/main.cpp)
 
 # Add include directories
-target_include_directories(ied_exe PRIVATE include ${IEC61850_INCLUDE_DIR})
+target_include_directories(ied_exe PRIVATE include ${LIBIEC_INCLUDES})
 
 # Set compiler options
 target_compile_options(ied_exe PRIVATE -Wall -Wextra -pedantic)

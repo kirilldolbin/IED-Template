@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
+
+# Set the toolchain file
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/toolchain.cmake")
+
 project(IED)
 
 set(CMAKE_CXX_STANDARD 20)

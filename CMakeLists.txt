@@ -18,6 +18,6 @@ target_include_directories(ied_exe PRIVATE include ${LIBIEC_INCLUDES})
 
 # Set compiler options
 target_compile_options(ied_exe PRIVATE -Wall )
-target_link_libraries(ied_exe PRIVATE iec61850)
+target_link_libraries(ied_exe PRIVATE iec61850 gpiodcxx)
 
 

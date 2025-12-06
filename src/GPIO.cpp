@@ -8,7 +8,7 @@ GPIO::GPIO() : chip(chip_name)
 {
     gpiod::line_settings settings;
     settings.set_direction(gpiod::line::direction::OUTPUT);
-    settings.set_output_value(gpiod::line::value::ACTIVE); // Start with active state (on)
+    settings.set_output_value(gpiod::line::value::INACTIVE); // Start with active state (on)
     for (auto index : indexis)
     {
         // 3. Prepare a request

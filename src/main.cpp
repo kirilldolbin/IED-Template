@@ -33,14 +33,15 @@ int main(int argc, char **argv)
 {
 
     GPIO gpio;
-    bool value = false;
+   // bool value = false;
 
     while (true)
     {
         for (int i = 0; i < 4; i++)
         {
+            bool value = true;
             gpio.SetValue(value, i);
-            std::this_thread::sleep_for(1s);
+            std::this_thread::sleep_for(100ms);
             value = !value;
             gpio.SetValue(value, i);
         }

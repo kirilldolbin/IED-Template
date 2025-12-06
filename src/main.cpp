@@ -33,18 +33,26 @@ int main(int argc, char **argv)
 {
 
     GPIO gpio;
-   // bool value = false;
-
+    // bool value = false;
+    int i = 0;
     while (true)
     {
-        for (int i = 0; i < 4; i++)
+        // for (int i = 0; i < 4; i++)
+        // {
+        //     bool value = true;
+        //     gpio.SetValue(value, i);
+        //     std::this_thread::sleep_for(100ms);
+        //     value = !value;
+        //     gpio.SetValue(value, i);
+        // }
+        gpio.SetValue(false, i);
+        i++;
+        if (i > 3)
         {
-            bool value = true;
-            gpio.SetValue(value, i);
-            std::this_thread::sleep_for(100ms);
-            value = !value;
-            gpio.SetValue(value, i);
+            i = 0;
         }
+        gpio.SetValue(true, i);
+        std::this_thread::sleep_for(100ms);
     }
 
     // // Устанавливаем обработчики сигналов

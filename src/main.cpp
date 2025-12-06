@@ -1,91 +1,122 @@
-/*
- * goose_publisher_example.c
- */
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdio.h>
+#include "subscr.h"
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <csignal>
+#include <atomic>
+#include <cstring>
+#include "GPIO.h"
 
-#include "mms_value.h"
-#include "goose_publisher.h"
-#include "hal_thread.h"
+using namespace std::chrono_literals;
 
-/* has to be executed as root! */
-int
-main(int argc, char **argv)
-{
-    char *interface;
+// std::atomic<bool> running{true};
 
-    if (argc > 1)
-        interface = argv[1];
-    else
-        interface = "eth0";
+// void signalHandler(int signal) {
+//     std::cout << "\nReceived signal " << signal << ", shutting down..." << std::endl;
+//     running = false;
+// }
 
-    printf("Using interface %s\n", interface);
+// void customGooseHandler(const std::vector<bool>& values, uint64_t timestamp, 
+//                         uint32_t stNum, uint32_t sqNum) {
+//     std::cout << "\n[Custom Handler] GOOSE Event:" << std::endl;
+//     std::cout << "  Sequence: stNum=" << stNum << ", sqNum=" << sqNum << std::endl;
+//     std::cout << "  Timestamp: " << timestamp << std::endl;
+//     std::cout << "  Data: ";
+//     for (size_t i = 0; i < values.size(); ++i) {
+//         std::cout << "[" << i << "]=" << (values[i] ? "1" : "0") << " ";
+//     }
+//     std::cout << std::endl;
+// }
 
-    LinkedList dataSetValues = LinkedList_create();
+int main(int argc, char** argv) {
+
+    GPIO gpio;
+    bool value=false;
+    while (true) {
+        gpio.SetValue(value);
+        value=!value;
+        std::this_thread::sleep_for(1s);
+    }
+
+    // // Устанавливаем обработчики сигналов
+    // std::signal(SIGINT, signalHandler);
+    // std::signal(SIGTERM, signalHandler);
     
-
-    LinkedList_add(dataSetValues, MmsValue_newIntegerFromInt32(1234));
-    LinkedList_add(dataSetValues, MmsValue_newBinaryTime(false));
-    LinkedList_add(dataSetValues, MmsValue_newIntegerFromInt32(5678));
-
-    CommParameters gooseCommParameters;
-
-    gooseCommParameters.appId = 1000;
-    gooseCommParameters.dstAddress[0] = 0x01;
-    gooseCommParameters.dstAddress[1] = 0x0c;
-    gooseCommParameters.dstAddress[2] = 0xcd;
-    gooseCommParameters.dstAddress[3] = 0x01;
-    gooseCommParameters.dstAddress[4] = 0x00;
-    gooseCommParameters.dstAddress[5] = 0x01;
-    gooseCommParameters.vlanId = 0;
-    gooseCommParameters.vlanPriority = 4;
-
-    /*
-     * Create a new GOOSE publisher instance. As the second parameter the interface
-     * name can be provided (e.g. "eth0" on a Linux system). If the second parameter
-     * is NULL the interface name as defined with CONFIG_ETHERNET_INTERFACE_ID in
-     * stack_config.h is used.
-     */
-    GoosePublisher publisher = GoosePublisher_create(&gooseCommParameters, interface);
-
-    if (publisher) {
-        GoosePublisher_setGoCbRef(publisher, "Dolbin");
-        GoosePublisher_setConfRev(publisher, 1);
-        GoosePublisher_setDataSetRef(publisher, "simpleIOGenericIO/LLN0$AnalogValues");
-        GoosePublisher_setTimeAllowedToLive(publisher, 500);
-
-        int i = 0;
-
-        for (i = 0; i < 4; i++) {
-            Thread_sleep(1000);
-
-            if (i == 3) {
-                /* now change dataset to send an invalid GOOSE message */
-                LinkedList_add(dataSetValues, MmsValue_newBoolean(true));
-                GoosePublisher_publish(publisher, dataSetValues);
-            }
-            else {
-                if (GoosePublisher_publish(publisher, dataSetValues) == -1) {
-                    printf("Error sending message!\n");
-                }
-            }
-        }
-
-        GoosePublisher_destroy(publisher);
-    }
-    else {
-        printf("Failed to create GOOSE publisher. Reason can be that the Ethernet interface doesn't exist or root permission are required.\n");
-    }
-
-    LinkedList_destroyDeep(dataSetValues, (LinkedListValueDeleteFunction) MmsValue_delete);
-
+    // std::string interface = "eth0";
+    // if (argc > 1) {
+    //     interface = argv[1];
+    // }
+    
+    // std::cout << "Starting GOOSE Receiver on interface: " << interface << std::endl;
+    
+    // try {
+    //     // Создаём GooseReceiver
+    //     auto receiver = GooseReceiver::Create();
+    //     if (interface != "") {
+    //         receiver = std::make_unique<GooseReceiver>(interface);
+    //     }
+        
+    //     if (!receiver) {
+    //         std::cerr << "Failed to create GOOSE receiver" << std::endl;
+    //         return 1;
+    //     }
+        
+    //     // Создаём GooseSubscriber с тем же GOOSE Control Block Reference, что и у издателя
+    //     GooseSubscriber subscriber("SPbPUIO/oolegkaa");
+        
+    //     // Настраиваем подписчика в соответствии с издателем
+    //     uint8_t dstMac[6] = {0x01, 0x0c, 0xcd, 0x01, 0x00, 0x01};
+    //     subscriber.SetDstMac(dstMac);
+    //     subscriber.SetAppId(1000);
+        
+    //     // Устанавливаем пользовательский обработчик
+    //     subscriber.SetListener(customGooseHandler);
+        
+    //     // Добавляем подписчика в приёмник
+    //     receiver->AddSubscriber(subscriber);
+        
+    //     // Запускаем приёмник
+    //     receiver->Start();
+        
+    //     if (receiver->IsRunning()) {
+    //         std::cout << "GOOSE Receiver is running. Press Ctrl+C to stop." << std::endl;
+    //         std::cout << "Waiting for GOOSE messages with AppId=1000..." << std::endl;
+            
+    //         // Основной цикл
+    //         while (running) {
+    //             // Периодически выводим текущее состояние
+    //             auto values = subscriber.GetDataSetValues();
+                
+    //             std::cout << "\rCurrent state - stNum: " << subscriber.GetStNum()
+    //                       << ", sqNum: " << subscriber.GetSqNum()
+    //                       << ", Valid: " << (subscriber.IsValid() ? "Yes" : "No")
+    //                       << ", Values: ";
+    //             for (bool val : values) {
+    //                 std::cout << (val ? "1" : "0") << " ";
+    //             }
+    //             std::cout << "       " << std::flush;
+                
+    //             std::this_thread::sleep_for(100ms);
+    //         }
+            
+    //         // Останавливаем приёмник
+    //         receiver->Stop();
+    //         std::cout << "\nGOOSE Receiver stopped successfully." << std::endl;
+            
+    //     } else {
+    //         std::cerr << "Failed to start GOOSE receiver." << std::endl;
+    //         std::cerr << "Possible reasons:" << std::endl;
+    //         std::cerr << "  - Ethernet interface '" << interface << "' doesn't exist" << std::endl;
+    //         std::cerr << "  - Root permissions are required" << std::endl;
+    //         std::cerr << "  - GOOSE traffic is not arriving on the interface" << std::endl;
+    //         return 1;
+    //     }
+        
+    // } catch (const std::exception& e) {
+    //     std::cerr << "Error: " << e.what() << std::endl;
+    //     return 1;
+    // }
+    
     return 0;
 }
-
-
-
-

@@ -11,13 +11,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(third_party/CMakeLists.txt)
 
 # Add executable
-add_executable(ied_exe src/main.cpp)
+add_executable(ied_exe src/main.cpp src/GPIO.cpp)
 
 # Add include directories
 target_include_directories(ied_exe PRIVATE include ${LIBIEC_INCLUDES})
 
 # Set compiler options
-target_compile_options(ied_exe PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(ied_exe PRIVATE -Wall )
 target_link_libraries(ied_exe PRIVATE iec61850)
 
 

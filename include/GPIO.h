@@ -1,6 +1,9 @@
+#ifndef GPIO_klon
+#define GPIO_klon
 #include <cstdint>
 #include <gpiod.hpp>
 #include <vector>
+
 
 class GPIO
 {
@@ -16,3 +19,4 @@ private:
     std::vector<gpiod::line_request> requests;
     int gpio_write_pin=110;
 };
+#endif

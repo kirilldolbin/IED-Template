@@ -8,14 +8,14 @@
 #include <memory>
 #include "goose_receiver.h"
 #include "goose_subscriber.h"
-
+#include "GPIO.h"
 
 namespace TOR{
 class GooseSubscriber {
 public:
     using DataCallback = std::function<void(const std::vector<bool>&, uint64_t, uint32_t, uint32_t)>;
     
-    explicit GooseSubscriber(const std::string& goCbRef);
+    explicit GooseSubscriber(GPIO* gpio);
     ~GooseSubscriber();
     
 private:

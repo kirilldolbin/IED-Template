@@ -18,6 +18,7 @@
 static void
 gooseListener(GooseSubscriber subscriber, void* parameter)
 {
+    GPIO* gpio=static_cast<GPIO*>(parameter);
     printf("GOOSE event:\n");
     printf("  stNum: %u sqNum: %u\n", GooseSubscriber_getStNum(subscriber),
             GooseSubscriber_getSqNum(subscriber));
@@ -34,20 +35,28 @@ gooseListener(GooseSubscriber subscriber, void* parameter)
 
     MmsValue_printToBuffer(values, buffer, 1024);
 
+
     printf("  allData: %s\n", buffer);
+    int arraySize = MmsValue_getArraySize(values);
+            int i;
+            for (i = 0; i < arraySize; i++) {
+                MmsValue* pin_value=MmsValue_getElement(values, i);
+                bool pin_state=MmsValue_getBoolean(pin_value);
+                gpio->SetValue(pin_state,i);
+            }
 }
 namespace TOR{
-GooseSubscriber::GooseSubscriber(const std::string &goCbRef)
+GooseSubscriber::GooseSubscriber(GPIO* gpio)
 {
     receiver = GooseReceiver_create();
     GooseReceiver_setInterfaceId(receiver, "eth0");
-    ::GooseSubscriber subscriber = GooseSubscriber_create("simpleIOGenericIO/LLN0$GO$gcbAnalogValues", nullptr);
+    ::GooseSubscriber subscriber = GooseSubscriber_create("RETOM_GOOSECTRL/LLN0$GO$Control_DataSet1", nullptr);
 
-    uint8_t dstMac[6] = {0x01,0x0c,0xcd,0x01,0x00,0x01};
+    uint8_t dstMac[6] = {0x01,0x0c,0xcd,0x01,0x00,0x15};
     GooseSubscriber_setDstMac(subscriber, dstMac);
-    GooseSubscriber_setAppId(subscriber, 1000);
+    GooseSubscriber_setAppId(subscriber, 0x0001);
 
-    GooseSubscriber_setListener(subscriber, gooseListener, NULL);
+    GooseSubscriber_setListener(subscriber, gooseListener, gpio);
 
     GooseReceiver_addSubscriber(receiver, subscriber);
 

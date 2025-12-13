@@ -33,20 +33,12 @@ int main(int argc, char **argv)
 {
 
     GPIO gpio;
-    TOR::GooseSubscriber Minevich("simpleIOGenericIO/LLN0$GO$gcbAnalogValues");
+    TOR::GooseSubscriber Minevich(&gpio);
     // bool value = false;
-    int i = 0;
+  
     while (true)
     {
-        
-        gpio.SetValue(false, i);
-        i++;
-        if (i > 3)
-        {
-            i = 0;
-        }
-        gpio.SetValue(true, i);
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(1s);
     }
     
 
